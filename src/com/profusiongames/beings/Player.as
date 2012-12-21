@@ -1,9 +1,7 @@
 package com.profusiongames.beings 
 {
+	import com.profusiongames.util.Vector2D;
 	import flash.display.Bitmap;
-	import fw.anim.AnimSprite;
-	import fw.anim.AnimTextureSheet;
-	import fw.anim.TileSheetHelper;
 	import org.flashdevelop.utils.FlashConnect;
 	import starling.core.Starling;
 	import starling.display.MovieClip;
@@ -17,24 +15,38 @@ package com.profusiongames.beings
 	{
 		[Embed(source = "../../../../lib/Graphics/char/boy_frames.png")]private var _animTexture:Class;
 		[Embed(source = "../../../../lib/Graphics/char/boy_frames.xml", mimeType = "application/octet-stream")]private var _animXML:Class;
-		private var animation:MovieClip;
-		
+		private var _animation:MovieClip;
+		private var _speed:Vector2D;
+		public static var GRAVITY:Number = 0.1;
+		private var _maxYSpeed:Number = 10;
 		public function Player() 
 		{			
 			var texture:Texture = Texture.fromBitmap(new _animTexture());
 			var xmlData:XML = XML(new _animXML());
 			var textureAtlas:TextureAtlas = new TextureAtlas(texture, xmlData);
-			animation = new MovieClip(textureAtlas.getTextures("boyf_"), 20);
-			addChild(animation);
-			Starling.juggler.add(animation);
+			_animation = new MovieClip(textureAtlas.getTextures("boyf_"), 20);
+			addChild(_animation);
+			Starling.juggler.add(_animation);
 			
 			x = 200;
 			y = 300;
+			_speed = new Vector2D(0, -2);
 		}
 		
 		override public function frame():void
 		{
 			super.frame();
+			x += _speed.x;
+			y += _speed.y;
+			_speed.x *= 0.99;
+			_speed.y += GRAVITY;
+			if (_speed.y > _maxYSpeed)
+				_speed.y = _maxYSpeed;
+		}
+		
+		public function bounce(amount:Number):void
+		{
+			_speed.y -= amount;
 		}
 		
 		

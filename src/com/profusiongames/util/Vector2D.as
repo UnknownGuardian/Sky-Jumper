@@ -1,4 +1,4 @@
-package com.profusiongames.trib.util
+package com.profusiongames.util
 {
 	import flash.geom.Point;
 
