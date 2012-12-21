@@ -1,5 +1,7 @@
 package com.profusiongames.containers 
 {
+	import starling.display.Image;
+	import starling.display.Quad;
 	import starling.display.Sprite;
 	
 	/**
@@ -11,7 +13,7 @@ package com.profusiongames.containers
 		
 		public function ScrollingContainer() 
 		{
-			
+			addChild(new Quad(100, 100, 0xFF00FF));
 		}
 		
 		public function centerOn(s:Sprite):void

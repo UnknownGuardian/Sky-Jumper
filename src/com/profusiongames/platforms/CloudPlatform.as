@@ -14,8 +14,6 @@ package com.profusiongames.platforms
 		{
 			_image = new Image(Texture.fromBitmap(new _cloud()));
 			addChild(_image);
-			x = 200;
-			y = 400;
 		}
 		
 	}

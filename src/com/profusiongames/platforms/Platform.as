@@ -7,7 +7,7 @@ package com.profusiongames.platforms
 	 */
 	public class Platform extends Sprite
 	{
-		private var _bouncePower:Number = 5;
+		private var _bouncePower:Number = 20;
 		public function Platform() 
 		{
 			

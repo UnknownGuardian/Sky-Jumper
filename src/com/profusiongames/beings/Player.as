@@ -17,8 +17,9 @@ package com.profusiongames.beings
 		[Embed(source = "../../../../lib/Graphics/char/boy_frames.xml", mimeType = "application/octet-stream")]private var _animXML:Class;
 		private var _animation:MovieClip;
 		private var _speed:Vector2D;
-		public static var GRAVITY:Number = 0.1;
-		private var _maxYSpeed:Number = 10;
+		public static var GRAVITY:Number = 0.2;
+		private var _maxYSpeed:Number = 30; //going down
+		private var _minYSpeed:Number = -30; //going up
 		public function Player() 
 		{			
 			var texture:Texture = Texture.fromBitmap(new _animTexture());
@@ -36,17 +37,43 @@ package com.profusiongames.beings
 		override public function frame():void
 		{
 			super.frame();
+			if (_speed.y > _maxYSpeed)
+				_speed.y = _maxYSpeed;
+			else if (_speed.y < _minYSpeed)
+				_speed.y = _minYSpeed;
 			x += _speed.x;
 			y += _speed.y;
 			_speed.x *= 0.99;
 			_speed.y += GRAVITY;
-			if (_speed.y > _maxYSpeed)
-				_speed.y = _maxYSpeed;
 		}
 		
 		public function bounce(amount:Number):void
 		{
 			_speed.y -= amount;
+		}
+		
+		public function get isFalling():Boolean
+		{
+			return _speed.y > 0;
+		}
+		
+		public function moveHorizontallyTowards(xPos:Number):void
+		{
+			return;
+			
+			//x = xPos;
+			if (xPos > x)
+			{
+				_speed.x += 5;
+				if (xPos < x + _speed.x)
+					_speed.x = xPos - x;
+			}
+			else
+			{
+				_speed.x -= 5;
+				if (xPos > x + _speed.x)
+					_speed.x = xPos - x;
+			}
 		}
 		
 		

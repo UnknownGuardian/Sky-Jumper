@@ -5,7 +5,7 @@
     <movie outputType="Application" />
     <movie input="" />
     <movie path="bin\SkyJumper.swf" />
-    <movie fps="30" />
+    <movie fps="60" />
     <movie width="500" />
     <movie height="600" />
     <movie version="11" />

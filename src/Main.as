@@ -13,6 +13,8 @@ package
 	public class Main extends Sprite 
 	{
 		private var starlingStage:Starling;
+		public static var HEIGHT:int = 600;
+		public static var WIDTH:int = 500;
 		public function Main():void 
 		{
 			if (stage) init();
