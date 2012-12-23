@@ -25,6 +25,9 @@ package com.profusiongames.beings
 		private var _maxYSpeed:Number = 30; //going down
 		private var _minYSpeed:Number = -30; //going up
 		private var _maxXSpeed:Number = 5;
+		
+		private var _angledDirection:Number = Math.PI / 8;
+		
 		public function Player() 
 		{			
 			var texture:Texture = Texture.fromBitmap(new _animTexture());
@@ -36,10 +39,11 @@ package com.profusiongames.beings
 			_animationRight = new MovieClip(textureAtlas.getTextures("boy_right_"), 20);
 			_animationBack = new MovieClip(textureAtlas.getTextures("boy_back_"), 20);
 			//addChild(_animation);
+			_animationForward.currentFrame = 1;
 			addChild(_animationForward);
 			
 			//Starling.juggler.add(_animation);
-			Starling.juggler.add(_animationForward);
+			//Starling.juggler.add(_animationForward);
 			
 			x = 200;
 			y = 300;
@@ -60,16 +64,32 @@ package com.profusiongames.beings
 		{
 			if (_speed.y > 0)
 			{
-				if (rotation != Math.PI)
+				if (Math.abs(rotation) <= 0.05)
+				{
+					rotation = Math.random() > 0.5 ? 0.0001 : -0.0001;
+				}
+				if (Math.abs(rotation) != Math.PI && rotation >=0)
 				{
 					rotation += (Math.PI - rotation) / 8;
+				}
+				else if (Math.abs(rotation) != Math.PI && rotation<0)
+				{
+					rotation += (-Math.PI - rotation) / 8;
 				}
 			}
 			else if (_speed.y < 0)
 			{
-				if (rotation != 0)
+				if (Math.abs(_speed.x) < 1 && rotation != 0)
 				{
-					rotation += (0 - rotation) / 8;
+					rotation += (0 - rotation) / 4;
+				}
+				else if (_speed.x >= 0 && rotation != _angledDirection)
+				{
+					rotation += (_angledDirection - rotation) / 4;
+				}
+				else if (_speed.x <= 0 && rotation != -_angledDirection)
+				{
+					rotation += (-_angledDirection - rotation) / 4;
 				}
 			}
 			else
