@@ -3,6 +3,7 @@ package com.profusiongames.states
 	import com.profusiongames.beings.Player;
 	import com.profusiongames.containers.ScrollingContainer;
 	import com.profusiongames.platforms.CloudPlatform;
+	import com.profusiongames.platforms.GroundPlatform;
 	import com.profusiongames.platforms.Platform;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -39,12 +40,22 @@ package com.profusiongames.states
 			addEventListener(Event.ENTER_FRAME, frame);
 			stage.addEventListener(TouchEvent.TOUCH, onTouch);
 			generateInitialPlatforms();
+			generateGround();
 			_scrollingContainer.addChild(_player);
+		}
+		
+		private function generateGround():void 
+		{
+			var groundPlatform:GroundPlatform = new GroundPlatform();
+			groundPlatform.x = 0;
+			groundPlatform.y = Main.HEIGHT - groundPlatform.height;
+			_scrollingContainer.addChild(groundPlatform);
+			_platformList.push(groundPlatform);
 		}
 		
 		private function generateInitialPlatforms():void 
 		{
-			var h:int = Main.HEIGHT;
+			var h:int = Main.HEIGHT - 5;
 			
 			//start from the bottom and generate up, ending 150 px above the player
 			while (h > _minHeightToGeneratePlatforms)
@@ -72,20 +83,14 @@ package com.profusiongames.states
 			var mp:Point = touch.getLocation(_scrollingContainer);
 			if (touch)
 			{
-				_mouseX = mp.x;//touch.globalX;// +_scrollingContainer.x;
-				_mouseY = mp.y;// touch.globalY;// +_scrollingContainer.y;
-				//FlashConnect.atrace(_mouseX, _mouseY);
-				if(touch.phase == TouchPhase.BEGAN)
-				{
-					
+				_mouseX = mp.x;
+				_mouseY = mp.y;
+				if(touch.phase == TouchPhase.BEGAN) {
 				}
-				else if(touch.phase == TouchPhase.ENDED)
-				{
+				else if(touch.phase == TouchPhase.ENDED) {
 					_player.bounce(15);
 				}
-				else if(touch.phase == TouchPhase.MOVED)
-				{
-					
+				else if(touch.phase == TouchPhase.MOVED) {
 				}
 			}
 		}
@@ -94,60 +99,9 @@ package com.profusiongames.states
 		{
 			checkForPlatformsToBeRemoved();
 			addPlatforms();
-			_player.moveHorizontallyTowards(_mouseX);
-			_player.frame();
+			handlePlayer();
 			checkForPlatformCollision();
-			_scrollingContainer.centerOn(_player);
-		}
-		
-		private function addPlatforms():void
-		{
-			/*for (var i:int = 0; i < _platformsToCreate; i++)
-			{
-				var h:int = _platformList[_platformList.length - 1].y;
-				while (h < _minHeightToGeneratePlatforms)
-				{
-					
-				}
-				generatePlatformAt(h);
-				var p:CloudPlatform = generatePlatformAt(h);
-				_scrollingContainer.addChild(p);
-				_platformList.push(p);
-			}
-			_platformsToCreate = 0;*/
-			//FlashConnect.atrace(_platformList.length);
-			if (_platformList.length == 0)
-				return;
-			
-			var highest:int = _platformList[_platformList.length - 1].y;
-			while (highest > _player.y - Main.HEIGHT/2 + _minHeightToGeneratePlatforms)
-			{
-				highest -= Math.random() * _platformDensity  + _minPlatformDensity;
-				var p:CloudPlatform  = generatePlatformAt(highest);
-				_scrollingContainer.addChild(p);
-				_platformList.push(p);
-			}
-			
-			
-		}
-		
-		private function checkForPlatformCollision():void 
-		{
-			if (_player.isFalling)
-			{
-				var playerBounds:Rectangle = _player.getBounds(_scrollingContainer);
-				var platform:Platform;
-				for (var i:int = 0; i < _platformList.length; i++)
-				{
-					platform = _platformList[i];
-					var platformBounds:Rectangle = platform.getBounds(_scrollingContainer);
-					if (playerBounds.intersects(platformBounds))
-					{
-						_player.bounce(platform.bouncePower);
-						//FlashConnect.atrace("collision");
-					}
-				}
-			}
+			handleScrollingBackground();
 		}
 		
 		private function checkForPlatformsToBeRemoved():void 
@@ -175,6 +129,50 @@ package com.profusiongames.states
 			}
 		}
 		
+		private function addPlatforms():void
+		{
+			if (_platformList.length == 0)
+				return;
+			
+			var highest:int = _platformList[_platformList.length - 1].y;
+			while (highest > _player.y - Main.HEIGHT/2 + _minHeightToGeneratePlatforms)
+			{
+				highest -= Math.random() * _platformDensity  + _minPlatformDensity;
+				var p:CloudPlatform  = generatePlatformAt(highest);
+				_scrollingContainer.addChild(p);
+				_platformList.push(p);
+			}
+		}
+		
+		private function handlePlayer():void 
+		{
+			_player.moveHorizontallyTowards(_mouseX);
+			_player.frame();
+		}
+		
+		private function checkForPlatformCollision():void 
+		{
+			if (_player.isFalling)
+			{
+				var playerBounds:Rectangle = _player.getBounds(_scrollingContainer);
+				var platform:Platform;
+				for (var i:int = 0; i < _platformList.length; i++)
+				{
+					platform = _platformList[i];
+					var platformBounds:Rectangle = platform.getBounds(_scrollingContainer);
+					if (playerBounds.intersects(platformBounds))
+					{
+						_player.bounce(platform.bouncePower);
+						//FlashConnect.atrace("collision");
+					}
+				}
+			}
+		}
+		
+		private function handleScrollingBackground():void 
+		{
+			_scrollingContainer.centerVerticallyOnUsingMax(_player);
+		}
 	}
 
 }

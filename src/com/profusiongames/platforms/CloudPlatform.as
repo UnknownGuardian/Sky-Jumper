@@ -8,7 +8,8 @@ package com.profusiongames.platforms
 	 */
 	public class CloudPlatform extends Platform 
 	{
-		[Embed(source = "../../../../lib/Graphics/cloud.png")]private var _cloud:Class;
+		//[Embed(source = "../../../../lib/Graphics/cloud.png")]private var _cloud:Class;
+		[Embed(source="../../../../lib/Graphics/cloud_side_shadow.png")]private var _cloud:Class;
 		private var _image:Image;
 		public function CloudPlatform() 
 		{
