@@ -3,6 +3,7 @@ package
 	import com.profusiongames.states.Game;
 	import flash.display.Sprite;
 	import flash.events.Event;
+	import org.flashdevelop.utils.FlashConnect;
 	import starling.core.Starling;
 
 	/**

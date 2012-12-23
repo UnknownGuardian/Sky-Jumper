@@ -18,7 +18,7 @@ package com.profusiongames.containers
 		
 		public function centerOn(s:Sprite):void
 		{
-			x = -s.x + 500 / 2;
+			//x = -s.x + 500 / 2;
 			y = -s.y + 600 / 2;
 		}
 		

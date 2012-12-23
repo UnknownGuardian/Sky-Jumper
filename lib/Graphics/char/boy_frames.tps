@@ -2,7 +2,7 @@
 <data version="1.0">
     <struct type="Settings">
         <key>fileFormatVersion</key>
-        <int>0</int>
+        <int>1</int>
         <key>variation</key>
         <string>main</string>
         <key>verbose</key>
@@ -141,18 +141,18 @@
         </struct>
         <key>fileList</key>
         <array>
-            <filename>boyf__00.png</filename>
-            <filename>boyf__01.png</filename>
-            <filename>boyf__02.png</filename>
-            <filename>boyf__03.png</filename>
-            <filename>boyf__04.png</filename>
-            <filename>boyf__05.png</filename>
-            <filename>boyf__06.png</filename>
-            <filename>boyf__07.png</filename>
-            <filename>boyf__08.png</filename>
-            <filename>boyf__09.png</filename>
-            <filename>boyf__10.png</filename>
-            <filename>boyf__11.png</filename>
+            <filename>boy_right_01.png</filename>
+            <filename>boy_right_02.png</filename>
+            <filename>boy_right_03.png</filename>
+            <filename>boy_back_01.png</filename>
+            <filename>boy_back_02.png</filename>
+            <filename>boy_back_03.png</filename>
+            <filename>boy_forward_01.png</filename>
+            <filename>boy_forward_02.png</filename>
+            <filename>boy_forward_03.png</filename>
+            <filename>boy_left_01.png</filename>
+            <filename>boy_left_02.png</filename>
+            <filename>boy_left_03.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

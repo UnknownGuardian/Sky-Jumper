@@ -81,7 +81,7 @@ package com.profusiongames.states
 				}
 				else if(touch.phase == TouchPhase.ENDED)
 				{
-					_player.bounce(5);
+					_player.bounce(15);
 				}
 				else if(touch.phase == TouchPhase.MOVED)
 				{
@@ -115,7 +115,7 @@ package com.profusiongames.states
 				_platformList.push(p);
 			}
 			_platformsToCreate = 0;*/
-			FlashConnect.atrace(_platformList.length);
+			//FlashConnect.atrace(_platformList.length);
 			if (_platformList.length == 0)
 				return;
 			
@@ -162,7 +162,7 @@ package com.profusiongames.states
 				platform = _platformList[i];
 				var xPos:int = platform.x;
 				var yPos:int = platform.y;
-				FlashConnect.atrace(xPos, yPos, yClipMin, yClipMax);
+				//FlashConnect.atrace(xPos, yPos, yClipMin, yClipMax);
 				if (xPos > xClipMax || xPos < xClipMin || yPos < yClipMin || yPos > yClipMax)
 				{
 					FlashConnect.atrace("kill");
