@@ -25,11 +25,6 @@ package com.profusiongames.beings
 		private var _maxYSpeed:Number = 30; //going down
 		private var _minYSpeed:Number = -30; //going up
 		private var _maxXSpeed:Number = 5;
-		
-		//for scaling/spinning when traveling
-		private var _spinSpeed:Number = 0;
-		private var _scaleIncrease:Boolean = false;
-		
 		public function Player() 
 		{			
 			var texture:Texture = Texture.fromBitmap(new _animTexture());
@@ -57,34 +52,30 @@ package com.profusiongames.beings
 		{
 			super.frame();
 			move();
-			scale();
+			rotateTowardsMove();
+			
 		}
 		
-		private function scale():void 
+		private function rotateTowardsMove():void 
 		{
-			_spinSpeed = Math.max(Math.abs(_speed.y) / 100,0.05);
-			
-			if (_scaleIncrease )
+			if (_speed.y > 0)
 			{
-				scaleX += _spinSpeed;
-				
-				if (scaleX >= 1)
+				if (rotation != Math.PI)
 				{
-					_scaleIncrease = false;
-					scaleX = 1;
+					rotation += (Math.PI - rotation) / 8;
+				}
+			}
+			else if (_speed.y < 0)
+			{
+				if (rotation != 0)
+				{
+					rotation += (0 - rotation) / 8;
 				}
 			}
 			else
 			{
-				scaleX -= _spinSpeed;
 				
-				if (scaleX <= -1)
-				{
-					_scaleIncrease = true;
-					scaleX = -1;
-				}
 			}
-			FlashConnect.atrace("SpinSpeed: ", _spinSpeed, " ScaleX: ", scaleX, " Scale Increase: ", _scaleIncrease);
 		}
 		
 		private function move():void 

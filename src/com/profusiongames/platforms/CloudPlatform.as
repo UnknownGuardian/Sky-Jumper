@@ -14,6 +14,7 @@ package com.profusiongames.platforms
 		{
 			_image = new Image(Texture.fromBitmap(new _cloud()));
 			addChild(_image);
+			pivotX = _image.width / 2;
 		}
 		
 	}

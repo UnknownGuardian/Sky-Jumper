@@ -61,7 +61,7 @@ package com.profusiongames.states
 		private function generatePlatformAt(h:int):CloudPlatform 
 		{
 			var p:CloudPlatform = new CloudPlatform();
-			p.x = Math.random() * 500 - 250;
+			p.x = int(Math.random() * 400) + 50;
 			p.y = h;
 			return p;
 		}
@@ -122,7 +122,7 @@ package com.profusiongames.states
 			var highest:int = _platformList[_platformList.length - 1].y;
 			while (highest > _player.y - Main.HEIGHT/2 + _minHeightToGeneratePlatforms)
 			{
-				highest -= Math.random() * _platformDensity  + _minPlatformDensity;;
+				highest -= Math.random() * _platformDensity  + _minPlatformDensity;
 				var p:CloudPlatform  = generatePlatformAt(highest);
 				_scrollingContainer.addChild(p);
 				_platformList.push(p);
