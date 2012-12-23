@@ -62,7 +62,7 @@ package com.profusiongames.beings
 		
 		private function rotateTowardsMove():void 
 		{
-			if (_speed.y > 0)
+			/*if (_speed.y > 0)
 			{
 				if (Math.abs(rotation) <= 0.05)
 				{
@@ -77,7 +77,7 @@ package com.profusiongames.beings
 					rotation += (-Math.PI - rotation) / 8;
 				}
 			}
-			else if (_speed.y < 0)
+			else if (_speed.y < 0)*/
 			{
 				if (Math.abs(_speed.x) < 1 && rotation != 0)
 				{
@@ -92,7 +92,7 @@ package com.profusiongames.beings
 					rotation += (-_angledDirection - rotation) / 4;
 				}
 			}
-			else
+			//else
 			{
 				
 			}
