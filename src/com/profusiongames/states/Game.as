@@ -2,9 +2,11 @@ package com.profusiongames.states
 {
 	import com.profusiongames.beings.Player;
 	import com.profusiongames.containers.ScrollingContainer;
-	import com.profusiongames.platforms.CloudPlatform;
+	import com.profusiongames.platforms.Ground;
 	import com.profusiongames.platforms.GroundPlatform;
 	import com.profusiongames.platforms.Platform;
+	import com.profusiongames.scenery.Cloud;
+	import com.profusiongames.scenery.Scenery;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import org.flashdevelop.utils.FlashConnect;
@@ -22,12 +24,19 @@ package com.profusiongames.states
 		private var _player:Player = new Player();
 		private var _scrollingContainer:ScrollingContainer = new ScrollingContainer();
 		private var _platformList:Vector.<Platform> = new Vector.<Platform>();
-		private var _platformsToCreate:int = 0;
-		private var _minPlatformDensity:int = 50;
-		private var _platformDensity:int = 250;
+		private var _sceneryList:Vector.<Scenery> = new Vector.<Scenery>();
+		
+		private var _minPlatformDensity:int = 40;
+		private var _platformDensity:int = 80;
 		private var _minHeightToGeneratePlatforms:int = -150; //what height to stop generating platforms at.
+		
+		private var _minSceneryDensity:int = 60;
+		private var _sceneryDensity:int = 160;
+		private var _minHeightToGenerateScenery:int = -150; //what height to stop generating clouds at
+		
 		private var _mouseX:Number = 0;
 		private var _mouseY:Number = 0;
+		
 		public function Game() 
 		{
 			addChild(_scrollingContainer);
@@ -40,16 +49,32 @@ package com.profusiongames.states
 			addEventListener(Event.ENTER_FRAME, frame);
 			stage.addEventListener(TouchEvent.TOUCH, onTouch);
 			generateInitialPlatforms();
-			generateGround();
-			_scrollingContainer.addChild(_player);
+			generateInitialGround();
+			generateInitialClouds();
+			_scrollingContainer.addActive(_player);
 		}
 		
-		private function generateGround():void 
+		private function generateInitialClouds():void 
 		{
-			var groundPlatform:GroundPlatform = new GroundPlatform();
+			var h:int = Main.HEIGHT - 5;
+			
+			//start from the bottom and generate up, ending 150 px above the player
+			while (h > _minHeightToGenerateScenery)
+			{
+				h -= Math.random() * _sceneryDensity + _minSceneryDensity;
+				var s:Scenery = generateSceneryAt(h);
+				_scrollingContainer.addScenery(s);
+				s.yRelativeToScreen = h;
+				_sceneryList.push(s);
+			}
+		}
+		
+		private function generateInitialGround():void 
+		{
+			var groundPlatform:Ground = new Ground();
 			groundPlatform.x = 0;
 			groundPlatform.y = Main.HEIGHT - groundPlatform.height;
-			_scrollingContainer.addChild(groundPlatform);
+			_scrollingContainer.addActive(groundPlatform);
 			_platformList.push(groundPlatform);
 		}
 		
@@ -61,20 +86,29 @@ package com.profusiongames.states
 			while (h > _minHeightToGeneratePlatforms)
 			{
 				h -= Math.random() * _platformDensity + _minPlatformDensity;
-				FlashConnect.atrace(h);
-				generatePlatformAt(h);
-				var p:CloudPlatform = generatePlatformAt(h);
-				_scrollingContainer.addChild(p);
+				var p:Platform = generatePlatformAt(h);
+				_scrollingContainer.addActive(p);
 				_platformList.push(p);
 			}
 		}
 		
-		private function generatePlatformAt(h:int):CloudPlatform 
+		
+		
+		private function generatePlatformAt(h:int):Platform 
 		{
-			var p:CloudPlatform = new CloudPlatform();
+			//FlashConnect.atrace("Generating platform @", h);
+			var p:Platform = new GroundPlatform();//Math.random() > 0.5 ? new CloudPlatform() :
 			p.x = int(Math.random() * 400) + 50;
 			p.y = h;
 			return p;
+		}
+		
+		private function generateSceneryAt(h:int):Scenery
+		{
+			var s:Scenery = new Cloud();
+			s.x = int(Math.random() * 400) + 50;
+			//s.y = h;
+			return s;
 		}
 		
 		private function onTouch(e:TouchEvent):void 
@@ -97,34 +131,61 @@ package com.profusiongames.states
 		
 		private function frame(e:Event):void 
 		{
+			//FlashConnect.atrace(_scrollingContainer.getScreenAltitude());
 			checkForPlatformsToBeRemoved();
+			checkForSceneryToBeRemoved();
 			addPlatforms();
+			addScenery();
 			handlePlayer();
 			checkForPlatformCollision();
 			handleScrollingBackground();
+			checkForGameOver();
 		}
 		
 		private function checkForPlatformsToBeRemoved():void 
 		{
-			var xClipMin:int = -500 + _player.x;
-			var xClipMax:int = 500 +  _player.x;
-			var yClipMin:int = -600 +  _player.y;
-			var yClipMax:int = 600 +  _player.y;
+			//var xClipMin:int = -500 + _player.x;
+			//var xClipMax:int = 500 +  _player.x;
+			//var yClipMin:int = -400 + -_scrollingContainer.getScreenAltitude();
+			var yClipMax:int = 600;
 			var platform:Platform;
 			for (var i:int = 0; i < _platformList.length; i++)
 			{
 				platform = _platformList[i];
-				var xPos:int = platform.x;
-				var yPos:int = platform.y;
+				//var xPos:int = platform.x;
+				var yPos:int = platform.y + _scrollingContainer.getScreenAltitude();
 				//FlashConnect.atrace(xPos, yPos, yClipMin, yClipMax);
-				if (xPos > xClipMax || xPos < xClipMin || yPos < yClipMin || yPos > yClipMax)
+				if (/*xPos > xClipMax || xPos < xClipMin || yPos < yClipMin ||*/ yPos > yClipMax)
 				{
-					FlashConnect.atrace("kill");
-					_scrollingContainer.removeChild(platform);
+					_scrollingContainer.removeActive(platform);
 					platform.dispose();
 					_platformList.splice(i, 1);
 					i--;
-					_platformsToCreate++;
+				}
+			}
+		}
+		
+		private function checkForSceneryToBeRemoved():void 
+		{
+			//var xClipMin:int = -500 + _player.x;
+			//var xClipMax:int = 500 +  _player.x;
+			//var yClipMin:int = -400 +  -_scrollingContainer.getScreenAltitude();
+			var yClipMax:int = 600;
+			//_scrollingContainer.setMinMax(-99999, yClipMax);
+			var scenery:Scenery;
+			for (var i:int = 0; i < _sceneryList.length; i++)
+			{
+				scenery = _sceneryList[i];
+				//var xPos:int = scenery.x + scenery.layer.x * scenery.layer.scrollScale;
+				var yPos:int = scenery.yRelativeToScreen;
+				if (i == 0) _scrollingContainer.setMid(yPos);
+				//FlashConnect.atrace("Scenery @",yPos, "Clip Min @", yClipMin, "Clip Max @", yClipMax, "Player @", _player.y);
+				if (/*xPos > xClipMax || xPos < xClipMin || yPos < yClipMin ||*/ yPos > yClipMax)
+				{
+					_scrollingContainer.removeScenery(scenery);
+					scenery.dispose();
+					_sceneryList.splice(i, 1);
+					i--;
 				}
 			}
 		}
@@ -135,12 +196,37 @@ package com.profusiongames.states
 				return;
 			
 			var highest:int = _platformList[_platformList.length - 1].y;
-			while (highest > _player.y - Main.HEIGHT/2 + _minHeightToGeneratePlatforms)
+			//FlashConnect.atrace("highest:", highest, "minHeight:", _minHeightToGeneratePlatforms, "altitude:", _scrollingContainer.getScreenAltitude());
+			while (highest > -_scrollingContainer.getScreenAltitude() + _minHeightToGeneratePlatforms)
 			{
 				highest -= Math.random() * _platformDensity  + _minPlatformDensity;
-				var p:CloudPlatform  = generatePlatformAt(highest);
-				_scrollingContainer.addChild(p);
+				var p:Platform  = generatePlatformAt(highest);
+				_scrollingContainer.addActive(p);
 				_platformList.push(p);
+			}
+		}
+		private function addScenery():void
+		{
+			//return;
+			
+			if (_sceneryList.length == 0)
+				return;
+			
+			var highestScenery:Scenery = _sceneryList[_sceneryList.length - 1];
+			var highest:int = highestScenery.yRelativeToScreen;
+			//FlashConnect.atrace("Highest Platform @" + _platformList[_platformList.length - 1].y + "Highest Scenery @" + _sceneryList[_sceneryList.length - 1].yRelativeToScreen);
+			//var relativeMinHeightToGenerateScenery:int = -highestScenery.layer.y + _minHeightToGenerateScenery ;
+			//FlashConnect.atrace("Makin scenery with highest:", highest, " relative:",relativeMinHeightToGenerateScenery,"and min height:", _minHeightToGenerateScenery);
+			//while (highest > -_scrollingContainer.getScreenAltitude() + relativeMinHeightToGenerateScenery)
+			while (highest > _minHeightToGenerateScenery)
+			{
+				highest -= Math.random() * _sceneryDensity + _minSceneryDensity;
+				var s:Scenery  = generateSceneryAt(highest);
+				_scrollingContainer.addScenery(s);
+				s.yRelativeToScreen = highest;
+				//s.yRelativeToScreen = highest;
+				//s.layer.changeScreenToRelativeCoordinates(s);
+				_sceneryList.push(s);
 			}
 		}
 		
@@ -172,6 +258,13 @@ package com.profusiongames.states
 		private function handleScrollingBackground():void 
 		{
 			_scrollingContainer.centerVerticallyOnUsingMax(_player);
+		}
+		
+				
+		private function checkForGameOver():void 
+		{
+			if (_player.x + _scrollingContainer.getScreenAltitude() > 600)
+				FlashConnect.atrace("player died");
 		}
 	}
 

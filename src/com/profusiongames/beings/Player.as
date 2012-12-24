@@ -21,7 +21,7 @@ package com.profusiongames.beings
 		private var _animationRight:MovieClip;
 		private var _animationBack:MovieClip;
 		private var _speed:Vector2D;
-		public static var GRAVITY:Number = 0.2;
+		public static var GRAVITY:Number = 0.5;
 		private var _maxYSpeed:Number = 30; //going down
 		private var _minYSpeed:Number = -30; //going up
 		private var _maxXSpeed:Number = 5;
@@ -45,8 +45,8 @@ package com.profusiongames.beings
 			//Starling.juggler.add(_animation);
 			//Starling.juggler.add(_animationForward);
 			
-			x = 200;
-			y = 300;
+			x = 50;
+			y = 500;
 			pivotX = _animation.width / 2;
 			pivotY = _animation.height / 2;
 			_speed = new Vector2D(0, -2);
@@ -56,6 +56,7 @@ package com.profusiongames.beings
 		{
 			super.frame();
 			move();
+			//y -= 1.5;
 			rotateTowardsMove();
 			
 		}
@@ -79,9 +80,16 @@ package com.profusiongames.beings
 			}
 			else if (_speed.y < 0)*/
 			{
-				if (Math.abs(_speed.x) < 1 && rotation != 0)
+				if (Math.abs(_speed.x) < 1)
 				{
-					rotation += (0 - rotation) / 4;
+					if (rotation != 0)
+					{
+						rotation += (0 - rotation) / 4;
+						if (Math.abs(rotation) <= 0.05)
+						{
+							rotation = 0;
+						}
+					}
 				}
 				else if (_speed.x >= 0 && rotation != _angledDirection)
 				{
@@ -112,7 +120,7 @@ package com.profusiongames.beings
 		
 		public function bounce(amount:Number):void
 		{
-			_speed.y -= amount;
+			_speed.y = -amount;
 		}
 		
 		public function get isFalling():Boolean

@@ -1,4 +1,4 @@
-package com.profusiongames.platforms 
+package com.profusiongames.scenery 
 {
 	import starling.display.Image;
 	import starling.textures.Texture;
@@ -6,12 +6,12 @@ package com.profusiongames.platforms
 	 * ...
 	 * @author UnknownGuardian
 	 */
-	public class CloudPlatform extends Platform 
+	public class Cloud extends Scenery
 	{
 		//[Embed(source = "../../../../lib/Graphics/cloud.png")]private var _cloud:Class;
 		[Embed(source="../../../../lib/Graphics/cloud_side_shadow.png")]private var _cloud:Class;
 		private var _image:Image;
-		public function CloudPlatform() 
+		public function Cloud() 
 		{
 			_image = new Image(Texture.fromBitmap(new _cloud()));
 			addChild(_image);
