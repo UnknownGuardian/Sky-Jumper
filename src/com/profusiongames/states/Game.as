@@ -2,11 +2,14 @@ package com.profusiongames.states
 {
 	import com.profusiongames.beings.Player;
 	import com.profusiongames.containers.ScrollingContainer;
+	import com.profusiongames.events.WindowEvent;
 	import com.profusiongames.platforms.Ground;
 	import com.profusiongames.platforms.GroundPlatform;
 	import com.profusiongames.platforms.Platform;
 	import com.profusiongames.scenery.Cloud;
 	import com.profusiongames.scenery.Scenery;
+	import com.profusiongames.windows.DeathWindow;
+	import com.profusiongames.windows.Window;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
 	import org.flashdevelop.utils.FlashConnect;
@@ -37,6 +40,7 @@ package com.profusiongames.states
 		private var _mouseX:Number = 0;
 		private var _mouseY:Number = 0;
 		
+		private var _isPaused:Boolean = true;
 		public function Game() 
 		{
 			addChild(_scrollingContainer);
@@ -46,12 +50,14 @@ package com.profusiongames.states
 		private function init(e:Event):void 
 		{
 			removeEventListener(Event.ADDED_TO_STAGE, init);
-			addEventListener(Event.ENTER_FRAME, frame);
 			stage.addEventListener(TouchEvent.TOUCH, onTouch);
-			generateInitialPlatforms();
-			generateInitialGround();
-			generateInitialClouds();
-			_scrollingContainer.addActive(_player);
+			//generateInitialPlatforms();
+			//generateInitialGround();
+			//generateInitialClouds();
+			//_scrollingContainer.addActive(_player);
+			resetGame();
+			
+			isPaused = false;
 		}
 		
 		private function generateInitialClouds():void 
@@ -263,8 +269,81 @@ package com.profusiongames.states
 				
 		private function checkForGameOver():void 
 		{
-			if (_player.x + _scrollingContainer.getScreenAltitude() > 600)
-				FlashConnect.atrace("player died");
+			if (_player.y + _scrollingContainer.getScreenAltitude() > 600)
+			{
+				//end game
+				isPaused = true;
+				showDeathPopUpMenu();
+			}
+		}
+		
+		private function showDeathPopUpMenu():void 
+		{
+			var deathWindow:DeathWindow = new DeathWindow();
+			addChild(deathWindow);
+			deathWindow.addEventListener(WindowEvent.NAVIGATION, onDeathWindowNavigation);
+		}
+		
+		private function onDeathWindowNavigation(e:WindowEvent):void 
+		{
+			(e.currentTarget as Window).close();
+			if (e.windowData == "upgrades")
+			{
+			}
+			else if (e.windowData == "menu")
+			{
+			}
+			else if (e.windowData == "play")
+			{
+				resetGame(true);
+			}
+		}
+		
+		private function resetGame(playOnComplete:Boolean = false ):void 
+		{
+			if (!_isPaused)
+				_isPaused = true;
+			
+			//clean up everything
+			var i:int = 0;
+			for (i = 0; i < _sceneryList.length; i++)
+				_sceneryList[i].dispose();
+			for (i = 0; i < _platformList.length; i++)
+				_platformList[i].dispose();
+			
+			_sceneryList.length = 0;
+			_platformList.length = 0;
+			_player.reset();
+			_scrollingContainer.reset();
+			
+			
+			//set up everything
+			generateInitialGround();
+			generateInitialClouds();
+			_scrollingContainer.addActive(_player);
+			
+			if (playOnComplete)
+				isPaused = false;
+		}
+		
+		public function get isPaused():Boolean 
+		{
+			return _isPaused;
+		}
+		
+		public function set isPaused(value:Boolean):void 
+		{
+			if (value == _isPaused) return;//same value return.
+			
+			_isPaused = value;
+			if (_isPaused)
+			{
+				removeEventListener(Event.ENTER_FRAME, frame);
+			}
+			else
+			{
+				addEventListener(Event.ENTER_FRAME, frame);
+			}
 		}
 	}
 

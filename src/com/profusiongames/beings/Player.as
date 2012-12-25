@@ -45,10 +45,16 @@ package com.profusiongames.beings
 			//Starling.juggler.add(_animation);
 			//Starling.juggler.add(_animationForward);
 			
-			x = 50;
-			y = 500;
+			
 			pivotX = _animation.width / 2;
 			pivotY = _animation.height / 2;
+			reset();
+		}
+		
+		public function reset():void
+		{
+			x = 50;
+			y = 500;
 			_speed = new Vector2D(0, -2);
 		}
 		
