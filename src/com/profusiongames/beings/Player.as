@@ -28,6 +28,7 @@ package com.profusiongames.beings
 		
 		private var _angledDirection:Number = Math.PI / 8;
 		
+		private var _yyyy:Number = 2;
 		public function Player() 
 		{			
 			var texture:Texture = Texture.fromBitmap(new _animTexture());
@@ -61,7 +62,10 @@ package com.profusiongames.beings
 		override public function frame():void
 		{
 			super.frame();
-			move();
+			y -= _yyyy;
+			if(_yyyy < 15)
+				_yyyy += 0.05;
+			//move();
 			//y -= 1.5;
 			rotateTowardsMove();
 			

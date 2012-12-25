@@ -3,6 +3,7 @@ package com.profusiongames.states
 	import com.profusiongames.beings.Player;
 	import com.profusiongames.containers.ScrollingContainer;
 	import com.profusiongames.events.WindowEvent;
+	import com.profusiongames.items.Item;
 	import com.profusiongames.platforms.Ground;
 	import com.profusiongames.platforms.GroundPlatform;
 	import com.profusiongames.platforms.Platform;
@@ -28,6 +29,7 @@ package com.profusiongames.states
 		private var _scrollingContainer:ScrollingContainer = new ScrollingContainer();
 		private var _platformList:Vector.<Platform> = new Vector.<Platform>();
 		private var _sceneryList:Vector.<Scenery> = new Vector.<Scenery>();
+		private var _itemList:Vector.<Item> = new Vector.<Item>();
 		
 		private var _minPlatformDensity:int = 40;
 		private var _platformDensity:int = 80;
@@ -86,7 +88,10 @@ package com.profusiongames.states
 		
 		private function generateInitialPlatforms():void 
 		{
-			var h:int = Main.HEIGHT - 5;
+			var p:Platform = generatePlatformAt( Main.HEIGHT - 90);
+			_scrollingContainer.addActive(p);
+			_platformList.push(p);
+			/*var h:int = Main.HEIGHT - 5;
 			
 			//start from the bottom and generate up, ending 150 px above the player
 			while (h > _minHeightToGeneratePlatforms)
@@ -95,7 +100,7 @@ package com.profusiongames.states
 				var p:Platform = generatePlatformAt(h);
 				_scrollingContainer.addActive(p);
 				_platformList.push(p);
-			}
+			}*/
 		}
 		
 		
@@ -320,6 +325,7 @@ package com.profusiongames.states
 			//set up everything
 			generateInitialGround();
 			generateInitialClouds();
+			generateInitialPlatforms();
 			_scrollingContainer.addActive(_player);
 			
 			if (playOnComplete)
