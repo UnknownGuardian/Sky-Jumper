@@ -34,6 +34,9 @@ package com.profusiongames.containers
 			/scaleY = 0.2;
 			scaleX = 0.2;
 			y = 400;*/
+			
+
+				
 		}
 		
 		public function reset():void
@@ -41,7 +44,7 @@ package com.profusiongames.containers
 			_sceneryLayerBack.y = _sceneryLayerFront.y = _activeLayer.y = 0;
 			_sceneryLayerBack.removeChildren();
 			_sceneryLayerFront.removeChildren();
-			_activeLayer.removeChildren();
+			_activeLayer.removeChildren(10);
 		}
 		
 		public function setMinMax(min:int, max:int):void

@@ -1,5 +1,7 @@
 package com.profusiongames.beings 
 {
+	import com.profusiongames.items.Item;
+	import com.profusiongames.status.Status;
 	import com.profusiongames.util.Vector2D;
 	import flash.display.Bitmap;
 	import org.flashdevelop.utils.FlashConnect;
@@ -26,9 +28,14 @@ package com.profusiongames.beings
 		private var _minYSpeed:Number = -30; //going up
 		private var _maxXSpeed:Number = 5;
 		
-		private var _angledDirection:Number = Math.PI / 8;
+		private var _shouldFlash:int = 0;
+		private var _flashRate:int = 10; //higher is slower, smaller is faster
 		
-		private var _yyyy:Number = 2;
+		private var _angledDirection:Number = Math.PI / 8;
+		private var _statuses:Vector.<Status> = new Vector.<Status>();
+		
+		private var money:int = 0;
+		
 		public function Player() 
 		{			
 			var texture:Texture = Texture.fromBitmap(new _animTexture());
@@ -57,18 +64,41 @@ package com.profusiongames.beings
 			x = 50;
 			y = 500;
 			_speed = new Vector2D(0, -2);
+			_statuses.length = 0;
+			_numLives = 1;
+			_shouldFlash = 0;
+			resurrect();
 		}
 		
 		override public function frame():void
 		{
 			super.frame();
-			y -= _yyyy;
-			if(_yyyy < 15)
-				_yyyy += 0.05;
-			//move();
+			handleItems();
+			move();
 			//y -= 1.5;
 			rotateTowardsMove();
-			
+			flashIfInvincible();
+		}
+		
+		private function handleItems():void 
+		{
+			var status:Status;
+			for (var i:int = 0; i < _statuses.length; i++)
+			{
+				status = _statuses[i];
+				if (status.type == "Booster")
+				{
+					_speed.y = -12;
+				}
+				
+				
+				status.duration--;
+				if (status.duration <= 0)
+				{
+					_statuses.splice(i, 1);
+					i--;
+				}
+			}
 		}
 		
 		private function rotateTowardsMove():void 
@@ -115,6 +145,18 @@ package com.profusiongames.beings
 				
 			}
 		}
+		private function flashIfInvincible():void 
+		{
+			if (_shouldFlash > 0)
+			{
+				_shouldFlash--;
+				visible = (_shouldFlash % _flashRate < _flashRate/2);
+			}
+			else if (visible == false)
+			{
+				visible = true;
+			}
+		}
 		
 		private function move():void 
 		{
@@ -138,6 +180,11 @@ package com.profusiongames.beings
 			return _speed.y > 0;
 		}
 		
+		public function get isInvincible():Boolean
+		{
+			return _shouldFlash != 0
+		}
+		
 		public function moveHorizontallyTowards(xPos:Number):void
 		{
 			
@@ -154,6 +201,62 @@ package com.profusiongames.beings
 				if (xPos > x + _speed.x)
 					_speed.x = xPos - x;
 			}
+		}
+		
+		public function collect(item:Item):void 
+		{
+			money += item.monetaryValue;
+			if (item is Status)
+			{
+				_statuses.push(item as Status);
+			}
+		}
+		
+		public function collideWithEnemy(enemy:Enemy):void 
+		{
+			if (enemy is Birdo)
+			{
+				if (isFalling)
+				{
+					bounce(enemy.bouncePower);
+					enemy.die();
+				}
+				else if(!isInvincible)
+				{
+					//instant hurt
+					die();
+					makeInvincible(60);
+				}
+			}
+			else if (enemy is Spike)
+			{
+				if (!isInvincible)
+				{
+					//instant hurt
+					die();
+					_speed.y *= -4;
+					makeInvincible(60);
+				}
+			}
+			else if (enemy is Kopter)
+			{
+				if (isFalling && !isInvincible)
+				{
+					//instant hurt
+					die();
+					makeInvincible(60);
+				}
+				else 
+				{
+					bounce(enemy.bouncePower);
+					enemy.die();
+				}
+			}
+		}
+		
+		private function makeInvincible(number:int):void 
+		{
+			_shouldFlash = number;
 		}
 		
 		

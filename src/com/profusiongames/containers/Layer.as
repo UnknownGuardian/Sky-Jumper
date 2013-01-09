@@ -1,5 +1,6 @@
 package com.profusiongames.containers 
 {
+	import starling.display.Quad;
 	import starling.display.Sprite;
 	
 	/**

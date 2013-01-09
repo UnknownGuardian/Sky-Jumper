@@ -12,6 +12,10 @@ package com.profusiongames.platforms
 		{
 			
 		}
+		public function changeForAltitude(to:String):void
+		{
+			
+		}
 		
 		public function get bouncePower():Number 
 		{

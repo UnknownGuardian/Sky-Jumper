@@ -153,6 +153,9 @@
             <filename>boy_left_01.png</filename>
             <filename>boy_left_02.png</filename>
             <filename>boy_left_03.png</filename>
+            <filename>../enemies/birdo/bird frames</filename>
+            <filename>../enemies/kopter/kopter frames</filename>
+            <filename>../enemies/spike/spike frames stroke</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

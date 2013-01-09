@@ -9,8 +9,7 @@ package com.profusiongames.scenery
 	 */
 	public class Cloud extends Scenery
 	{
-		//[Embed(source = "../../../../lib/Graphics/cloud.png")]private var _cloud:Class;
-		[Embed(source="../../../../lib/Graphics/cloud_side_shadow.png")]private var _cloud:Class;
+		[Embed(source="../../../../lib/Graphics/scenery/clouds/cloud_side_shadow.png")]private var _cloud:Class;
 		private var _image:Image;
 		public function Cloud() 
 		{

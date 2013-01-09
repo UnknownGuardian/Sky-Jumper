@@ -1,12 +1,20 @@
 package com.profusiongames.states 
 {
+	import com.profusiongames.beings.Birdo;
+	import com.profusiongames.beings.Enemy;
+	import com.profusiongames.beings.Kopter;
 	import com.profusiongames.beings.Player;
+	import com.profusiongames.beings.Spike;
 	import com.profusiongames.containers.ScrollingContainer;
 	import com.profusiongames.events.WindowEvent;
+	import com.profusiongames.items.Booster;
+	import com.profusiongames.items.Coin;
 	import com.profusiongames.items.Item;
+	import com.profusiongames.notifications.HeightMarker;
 	import com.profusiongames.platforms.Ground;
 	import com.profusiongames.platforms.GroundPlatform;
 	import com.profusiongames.platforms.Platform;
+	import com.profusiongames.platforms.SpacePlatform;
 	import com.profusiongames.scenery.Cloud;
 	import com.profusiongames.scenery.Scenery;
 	import com.profusiongames.windows.DeathWindow;
@@ -30,6 +38,7 @@ package com.profusiongames.states
 		private var _platformList:Vector.<Platform> = new Vector.<Platform>();
 		private var _sceneryList:Vector.<Scenery> = new Vector.<Scenery>();
 		private var _itemList:Vector.<Item> = new Vector.<Item>();
+		private var _enemyList:Vector.<Enemy> = new Vector.<Enemy>();
 		
 		private var _minPlatformDensity:int = 40;
 		private var _platformDensity:int = 80;
@@ -39,10 +48,20 @@ package com.profusiongames.states
 		private var _sceneryDensity:int = 160;
 		private var _minHeightToGenerateScenery:int = -150; //what height to stop generating clouds at
 		
+		private var spaceAltitude:int = 5000;
+		private var darknessAltitude:int = 10000;
+		
 		private var _mouseX:Number = 0;
 		private var _mouseY:Number = 0;
 		
 		private var _isPaused:Boolean = true;
+		
+		private var _platformCount:int = 0;
+		private var _spawnPlatformRequirement:Array = [];
+		private var _spawnQueue:Array = [];
+		
+		private var _heightMarker:HeightMarker = new HeightMarker();
+		
 		public function Game() 
 		{
 			addChild(_scrollingContainer);
@@ -84,6 +103,24 @@ package com.profusiongames.states
 			groundPlatform.y = Main.HEIGHT - groundPlatform.height;
 			_scrollingContainer.addActive(groundPlatform);
 			_platformList.push(groundPlatform);
+			
+			/*var birdo:Birdo = new Birdo();
+			birdo.x = 100;
+			birdo.y = 300;
+			_scrollingContainer.addActive(birdo);
+			_enemyList.push(birdo);
+			
+			var kopter:Kopter = new Kopter();
+			kopter.x = 175;
+			kopter.y = 300;
+			_scrollingContainer.addActive(kopter);
+			_enemyList.push(kopter);
+			
+			var spike:Spike = new Spike();
+			spike.x  = 250;
+			spike.y = 350;
+			_scrollingContainer.addActive(spike);
+			_enemyList.push(spike);*/
 		}
 		
 		private function generateInitialPlatforms():void 
@@ -107,8 +144,35 @@ package com.profusiongames.states
 		
 		private function generatePlatformAt(h:int):Platform 
 		{
+			_platformCount++;
 			//FlashConnect.atrace("Generating platform @", h);
-			var p:Platform = new GroundPlatform();//Math.random() > 0.5 ? new CloudPlatform() :
+			var p:Platform;
+			var altitude:int = _scrollingContainer.getScreenAltitude();
+			if (altitude > spaceAltitude)
+			{
+				p = new SpacePlatform();//Math.random() > 0.5 ? new CloudPlatform() :
+				if (altitude-spaceAltitude > 0.6 * darknessAltitude && Math.random() > 0.5) // % chance to generate small platforms
+				{
+					p.changeForAltitude("medium");
+				}
+				else if (altitude-spaceAltitude > 0.90 * darknessAltitude && Math.random() > 0.5) // % chance to generate small platforms
+				{
+					p.changeForAltitude("small");
+				}
+			}
+			else 
+			{
+				p = new GroundPlatform();
+				if (altitude > 0.6 * spaceAltitude && Math.random() > 0.5) // % chance to generate small platforms
+				{
+					p.changeForAltitude("medium");
+				}
+				else if (altitude > 0.90 * spaceAltitude && Math.random() > 0.5) // % chance to generate small platforms
+				{
+					p.changeForAltitude("small");
+				}
+			}
+			
 			p.x = int(Math.random() * 400) + 50;
 			p.y = h;
 			return p;
@@ -120,6 +184,27 @@ package com.profusiongames.states
 			s.x = int(Math.random() * 400) + 50;
 			//s.y = h;
 			return s;
+		}
+		
+		private function generateCoinAtPlatform(p:Platform, chance:Number = 0.75):Coin
+		{
+			if (Math.random() > chance) return null;
+			
+			var c:Coin = new Coin();
+			c.floatAbovePlatform(p);
+			return c;
+		}
+		
+		
+		
+		private function generateItem(p:Platform, chance:Number = 0.15):Item
+		{
+			
+			if (Math.random() > chance) return null;
+			
+			var item:Item = new Booster();
+			item.floatAbovePlatform(p);
+			return item;
 		}
 		
 		private function onTouch(e:TouchEvent):void 
@@ -145,10 +230,15 @@ package com.profusiongames.states
 			//FlashConnect.atrace(_scrollingContainer.getScreenAltitude());
 			checkForPlatformsToBeRemoved();
 			checkForSceneryToBeRemoved();
+			checkForItemsToBeRemoved();
 			addPlatforms();
 			addScenery();
+			addEnemies();
 			handlePlayer();
+			handleEnemies();
+			collectCoins();
 			checkForPlatformCollision();
+			checkForEnemyCollision();
 			handleScrollingBackground();
 			checkForGameOver();
 		}
@@ -158,7 +248,7 @@ package com.profusiongames.states
 			//var xClipMin:int = -500 + _player.x;
 			//var xClipMax:int = 500 +  _player.x;
 			//var yClipMin:int = -400 + -_scrollingContainer.getScreenAltitude();
-			var yClipMax:int = 600;
+			var yClipMax:int = 615;
 			var platform:Platform;
 			for (var i:int = 0; i < _platformList.length; i++)
 			{
@@ -181,7 +271,7 @@ package com.profusiongames.states
 			//var xClipMin:int = -500 + _player.x;
 			//var xClipMax:int = 500 +  _player.x;
 			//var yClipMin:int = -400 +  -_scrollingContainer.getScreenAltitude();
-			var yClipMax:int = 600;
+			var yClipMax:int = 615;
 			//_scrollingContainer.setMinMax(-99999, yClipMax);
 			var scenery:Scenery;
 			for (var i:int = 0; i < _sceneryList.length; i++)
@@ -201,8 +291,35 @@ package com.profusiongames.states
 			}
 		}
 		
+		private function checkForItemsToBeRemoved():void 
+		{
+			var yClipMax:int = 615;
+			var item:Item;
+			for (var i:int = 0; i < _itemList.length; i++)
+			{
+				item = _itemList[i];
+				//var xPos:int = platform.x;
+				var yPos:int = item.y + _scrollingContainer.getScreenAltitude();
+				//FlashConnect.atrace(xPos, yPos, yClipMin, yClipMax);
+				if (/*xPos > xClipMax || xPos < xClipMin || yPos < yClipMin ||*/ yPos > yClipMax)
+				{
+					_scrollingContainer.removeActive(item);
+					item.dispose();
+					_itemList.splice(i, 1);
+					i--;
+				}
+			}
+		}
+		
 		private function addPlatforms():void
 		{
+			//return; 
+			
+			
+			
+			
+			
+			
 			if (_platformList.length == 0)
 				return;
 			
@@ -214,8 +331,25 @@ package com.profusiongames.states
 				var p:Platform  = generatePlatformAt(highest);
 				_scrollingContainer.addActive(p);
 				_platformList.push(p);
+				
+				var c:Coin = generateCoinAtPlatform(p);
+				if (c != null)
+				{
+					_scrollingContainer.addActive(c);
+					_itemList.push(c);
+				}
+				else
+				{
+					var item:Item = generateItem(p);
+					if (item != null)
+					{
+						_scrollingContainer.addActive(item);
+						_itemList.push(item);
+					}
+				}
 			}
 		}
+		
 		private function addScenery():void
 		{
 			//return;
@@ -241,10 +375,78 @@ package com.profusiongames.states
 			}
 		}
 		
+		private function addEnemies():void 
+		{
+			if (_spawnPlatformRequirement.length == 0) return;
+			
+			var current:int = _spawnPlatformRequirement[0];
+			if (_platformCount >= current)
+			{
+				var type:String = _spawnQueue[0];
+				var enemy:Enemy;
+				if (type == "Kopter")
+					enemy = new Kopter();
+				else if (type == "Birdo")
+					enemy = new Birdo();
+				else if (type == "Spike")
+					enemy = new Spike();
+				enemy.x = Math.random() * (Main.WIDTH - 100) + 50;
+				enemy.y = _platformList[_platformList.length - 1].y - 15;
+				_scrollingContainer.addActive(enemy);
+				_enemyList.push(enemy);
+				
+				_scrollingContainer.addActive(enemy.warning);
+				
+				_spawnPlatformRequirement.shift();
+				_spawnQueue.shift();
+			}
+		}
+		
 		private function handlePlayer():void 
 		{
 			_player.moveHorizontallyTowards(_mouseX);
 			_player.frame();
+		}
+		
+		private function handleEnemies():void 
+		{
+			var enemy:Enemy;
+			for (var i:int = 0; i < _enemyList.length; i++)
+			{
+				enemy = _enemyList[i];
+				enemy.frame();
+				
+				enemy.warning.x = enemy.x;
+				enemy.warning.y = -_scrollingContainer.getScreenAltitude() + 20;
+				
+				if (enemy.warning.parent != null && enemy.y > -_scrollingContainer.getScreenAltitude())
+				{
+					_scrollingContainer.removeActive(enemy.warning);
+				}
+				//_scrollingContainer.getScreenAltitude() + 10;
+			}
+		}
+		
+		private function collectCoins():void 
+		{
+			var playerBounds:Rectangle = _player.getBounds(_scrollingContainer);
+			var item:Item;
+			for (var i:int = 0; i < _itemList.length; i++)
+			{
+				item = _itemList[i];
+				var itemBounds:Rectangle = item.getBounds(_scrollingContainer);
+				if (playerBounds.intersects(itemBounds))
+				{
+					_player.collect(item);
+					if (item.isCollectable)
+					{
+						_scrollingContainer.removeActive(item);
+						item.dispose();
+						_itemList.splice(i, 1);
+						i--;
+					}
+				}
+			}
 		}
 		
 		private function checkForPlatformCollision():void 
@@ -266,6 +468,27 @@ package com.profusiongames.states
 			}
 		}
 		
+		private function checkForEnemyCollision():void 
+		{
+			//return;
+			var playerBounds:Rectangle = _player.getBounds(_scrollingContainer);
+			var enemy:Enemy;
+			for (var i:int = 0; i < _enemyList.length; i++)
+			{
+				enemy = _enemyList[i];
+				var enemyBounds:Rectangle = enemy.getBoundsShrunk(_scrollingContainer);
+				if (playerBounds.intersects(enemyBounds))
+				{
+					_player.collideWithEnemy(enemy);
+					if (enemy.isDead)
+					{
+						_enemyList.splice(i, 1);
+						i--;
+					}
+				}
+			}
+		}
+		
 		private function handleScrollingBackground():void 
 		{
 			_scrollingContainer.centerVerticallyOnUsingMax(_player);
@@ -274,7 +497,7 @@ package com.profusiongames.states
 				
 		private function checkForGameOver():void 
 		{
-			if (_player.y + _scrollingContainer.getScreenAltitude() > 600)
+			if (_player.y + _scrollingContainer.getScreenAltitude() > 615 )//|| _player.isDead)
 			{
 				//end game
 				isPaused = true;
@@ -315,11 +538,31 @@ package com.profusiongames.states
 				_sceneryList[i].dispose();
 			for (i = 0; i < _platformList.length; i++)
 				_platformList[i].dispose();
+			for (i = 0; i < _itemList.length; i++)
+				_itemList[i].dispose();
+			for (i = 0; i < _enemyList.length; i++)
+				_enemyList[i].dispose();
+				
+			
+			_heightMarker.y = -_scrollingContainer.getScreenAltitude() + Main.HEIGHT/2;
 			
 			_sceneryList.length = 0;
 			_platformList.length = 0;
+			_itemList.length = 0;
+			_enemyList.length = 0;
 			_player.reset();
 			_scrollingContainer.reset();
+			
+			if (_heightMarker.parent == null && _heightMarker.y < 0)
+			{
+				_scrollingContainer.addActive(_heightMarker);
+			}
+			
+			_platformCount = 0;
+			_spawnPlatformRequirement = [30, 50, 70, 95, 110, 135];
+			_spawnQueue = ["Birdo", "Birdo", "Kopter", "Kopter", "Spike", "Spike"];
+			
+			
 			
 			
 			//set up everything
