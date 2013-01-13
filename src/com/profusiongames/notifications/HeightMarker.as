@@ -16,7 +16,7 @@ package com.profusiongames.notifications
 		{
 			_image = new Image(Texture.fromBitmap(new _marker()));
 			addChild(_image);
-			pivotY = height / 2;
+			pivotY = int(height / 2);
 		}
 		
 	}

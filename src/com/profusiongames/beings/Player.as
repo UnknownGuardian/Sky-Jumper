@@ -34,7 +34,7 @@ package com.profusiongames.beings
 		private var _angledDirection:Number = Math.PI / 8;
 		private var _statuses:Vector.<Status> = new Vector.<Status>();
 		
-		private var money:int = 0;
+		public static var money:int = 999;
 		
 		public function Player() 
 		{			

@@ -156,6 +156,9 @@
             <filename>../enemies/birdo/bird frames</filename>
             <filename>../enemies/kopter/kopter frames</filename>
             <filename>../enemies/spike/spike frames stroke</filename>
+            <filename>../items/coins/bronze coin frames</filename>
+            <filename>../items/coins/gold coin frames</filename>
+            <filename>../items/coins/silver coin frames</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

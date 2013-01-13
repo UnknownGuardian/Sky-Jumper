@@ -17,10 +17,10 @@ package com.profusiongames.windows
 		
 		public function center():void
 		{
-			pivotX = background.width / 2;
-			pivotY = background.height / 2;
-			x = Main.WIDTH / 2;
-			y = Main.HEIGHT / 2;
+			pivotX =  int(background.width / 2);
+			pivotY =  int(background.height / 2);
+			x = int(Main.WIDTH / 2);
+			y =  int(Main.HEIGHT / 2);
 		}
 		
 		public function get background():Image 

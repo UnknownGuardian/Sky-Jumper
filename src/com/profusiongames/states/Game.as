@@ -8,8 +8,11 @@ package com.profusiongames.states
 	import com.profusiongames.containers.ScrollingContainer;
 	import com.profusiongames.events.WindowEvent;
 	import com.profusiongames.items.Booster;
+	import com.profusiongames.items.BronzeCoin;
 	import com.profusiongames.items.Coin;
+	import com.profusiongames.items.GoldCoin;
 	import com.profusiongames.items.Item;
+	import com.profusiongames.items.SilverCoin;
 	import com.profusiongames.notifications.HeightMarker;
 	import com.profusiongames.platforms.Ground;
 	import com.profusiongames.platforms.GroundPlatform;
@@ -18,6 +21,7 @@ package com.profusiongames.states
 	import com.profusiongames.scenery.Cloud;
 	import com.profusiongames.scenery.Scenery;
 	import com.profusiongames.windows.DeathWindow;
+	import com.profusiongames.windows.UpgradesWindow;
 	import com.profusiongames.windows.Window;
 	import flash.geom.Point;
 	import flash.geom.Rectangle;
@@ -78,7 +82,12 @@ package com.profusiongames.states
 			//_scrollingContainer.addActive(_player);
 			resetGame();
 			
-			isPaused = false;
+			
+			
+			
+			
+			showDeathPopUpMenu();
+			//isPaused = false;  //uncomment this line when you comment out showdeahtpopupmenu
 		}
 		
 		private function generateInitialClouds():void 
@@ -190,7 +199,7 @@ package com.profusiongames.states
 		{
 			if (Math.random() > chance) return null;
 			
-			var c:Coin = new Coin();
+			var c:Coin = new BronzeCoin();
 			c.floatAbovePlatform(p);
 			return c;
 		}
@@ -509,17 +518,22 @@ package com.profusiongames.states
 		{
 			var deathWindow:DeathWindow = new DeathWindow();
 			addChild(deathWindow);
-			deathWindow.addEventListener(WindowEvent.NAVIGATION, onDeathWindowNavigation);
+			deathWindow.addEventListener(WindowEvent.NAVIGATION, onWindowNavigation);
 		}
 		
-		private function onDeathWindowNavigation(e:WindowEvent):void 
+		private function onWindowNavigation(e:WindowEvent):void 
 		{
+			e.currentTarget.removeEventListener(WindowEvent.NAVIGATION, onWindowNavigation);
 			(e.currentTarget as Window).close();
-			if (e.windowData == "upgrades")
+			if (e.windowData == "upgrade")
 			{
+				var u:UpgradesWindow = new UpgradesWindow();
+				addChild(u);
+				u.addEventListener(WindowEvent.NAVIGATION, onWindowNavigation);
 			}
 			else if (e.windowData == "menu")
 			{
+				
 			}
 			else if (e.windowData == "play")
 			{
@@ -544,7 +558,7 @@ package com.profusiongames.states
 				_enemyList[i].dispose();
 				
 			
-			_heightMarker.y = -_scrollingContainer.getScreenAltitude() + Main.HEIGHT/2;
+			_heightMarker.y = int(-_scrollingContainer.getScreenAltitude() + Main.HEIGHT/2);
 			
 			_sceneryList.length = 0;
 			_platformList.length = 0;
