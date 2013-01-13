@@ -165,32 +165,32 @@ package com.profusiongames.windows
 		
 		private function onGreedHover():void 
 		{
-			_descriptionText.text = "asd";
+			_descriptionText.text = "Find more valuable coins!";
 		}
 		
 		private function onFlatLinerHover():void 
 		{
-			_descriptionText.text = "dsaasd";
+			_descriptionText.text = "Extra lives are cheap!";
 		}
 		
 		private function onSugarBoostHover():void 
 		{
-			_descriptionText.text = "fdsgdfg";
+			_descriptionText.text = "Double jump all the way up!";
 		}
 		
 		private function onTurningPointHover():void 
 		{
-			_descriptionText.text = "dfgdfgdf";
+			_descriptionText.text = "Give yourself some movement boosts!";
 		}
 		
 		private function onSteroidsHover():void 
 		{
-			_descriptionText.text = "dfgdfg";
+			_descriptionText.text = "Naturally (or not so) jump higher!";
 		}
 		
 		private function onMoneyMagnetHover():void 
 		{
-			_descriptionText.text = "I'm super greedy";
+			_descriptionText.text = "Attract nearby coins!";
 		}
 		
 		
